@@ -31,11 +31,12 @@ jobs:
           # Set docker image names.
       -  name: Setup env variables
          run: |
-             echo "DOCKER_SERVICE=ghcr.io/$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+             echo "DOCKER_SERVICE=ghcr.io/$(echo ${{ github.repository_owner }}/${{ github.event.repository.name }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+             
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
           context: .
           platforms: linux/amd64,linux/arm/v7,linux/arm64
           push: true
-          tags: ${{ env.DOCKER_SERVICE }}/${{ github.event.repository.name }}:latest,${{ env.DOCKER_SERVICE }}/${{ github.event.repository.name }}:${{ steps.vars.outputs.tag }}
+          tags: ${{ env.DOCKER_SERVICE }}:latest,${{ env.DOCKER_SERVICE }}:${{ steps.vars.outputs.tag }}
