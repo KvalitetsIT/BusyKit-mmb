@@ -14,7 +14,13 @@ jobs:
     steps:
       # Checkout source code
       - uses: actions/checkout@v3
-
+        
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}
+          
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
@@ -28,16 +34,11 @@ jobs:
             registry: ghcr.io
             username: ${{ github.actor }}
             password: ${{ secrets.GITHUB_TOKEN }}
-          # Set docker image names.
-      -  name: Setup env variables
-         run: |
-             echo "DOCKER_IMAGE=$(echo ${{ github.repository_owner }}/${{ github.event.repository.name }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
              
       - name: Build and push
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
         with:
           context: .
           platforms: linux/amd64,linux/arm/v7,linux/arm64
           push: true
-          image: ${{ env.DOCKER_IMAGE }}
-          registry: ghcr.io
+          tag: ${{ steps.meta.outputs.tags }}
